@@ -5,16 +5,26 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 const EYE_HEIGHT = 1.6;
-
 const WALK_SPEED = 12;
 const SPRINT_MULTIPLIER = 2;
-
 const MOUSE_SENSITIVITY = 0.0025;
 const SCROLL_SPEED = 0.035;
-
 const MAX_PITCH = THREE.MathUtils.degToRad(70);
 
-const MUSEUM_RADIUS = 92;
+/*
+ * Expanded for the Infinite Museum.
+ *
+ * Central Hall:
+ * roughly ±92
+ *
+ * Ancient Room:
+ * centered around Z = -150
+ *
+ * This is temporary.
+ * Later we will replace this with
+ * proper room/wall collision.
+ */
+const MUSEUM_RADIUS = 230;
 
 export default function FirstPersonCamera() {
   const { camera, gl } = useThree();
@@ -30,8 +40,6 @@ export default function FirstPersonCamera() {
 
   useEffect(() => {
     camera.position.copy(targetPosition.current);
-
-    camera.rotation.order = "YXZ";
 
     const handleKeyDown = (event: KeyboardEvent) => {
       keys.current[event.code] = true;
@@ -75,21 +83,21 @@ export default function FirstPersonCamera() {
       );
     };
 
-    const handleCanvasClick = () => {
+    const handleClick = () => {
       if (document.pointerLockElement !== gl.domElement) {
         gl.domElement.requestPointerLock();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
+
     window.addEventListener("keyup", handleKeyUp);
+
     window.addEventListener("mousemove", handleMouseMove);
 
-    window.addEventListener("wheel", handleWheel, {
-      passive: true,
-    });
+    window.addEventListener("wheel", handleWheel, { passive: true });
 
-    gl.domElement.addEventListener("click", handleCanvasClick);
+    gl.domElement.addEventListener("click", handleClick);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
@@ -100,7 +108,7 @@ export default function FirstPersonCamera() {
 
       window.removeEventListener("wheel", handleWheel);
 
-      gl.domElement.removeEventListener("click", handleCanvasClick);
+      gl.domElement.removeEventListener("click", handleClick);
     };
   }, [camera, gl]);
 
@@ -113,15 +121,9 @@ export default function FirstPersonCamera() {
 
     const right = new THREE.Vector3(1, 0, 0);
 
-    const up = new THREE.Vector3(0, 1, 0);
+    forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw.current);
 
-    forward.applyAxisAngle(up, yaw.current);
-
-    right.applyAxisAngle(up, yaw.current);
-
-    /*
-     * WASD movement
-     */
+    right.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw.current);
 
     if (keys.current["KeyW"]) {
       direction.add(forward);
@@ -139,9 +141,9 @@ export default function FirstPersonCamera() {
       direction.sub(right);
     }
 
-    const isSprinting = keys.current["ShiftLeft"] || keys.current["ShiftRight"];
+    const sprinting = keys.current["ShiftLeft"] || keys.current["ShiftRight"];
 
-    const speed = isSprinting ? WALK_SPEED * SPRINT_MULTIPLIER : WALK_SPEED;
+    const speed = sprinting ? WALK_SPEED * SPRINT_MULTIPLIER : WALK_SPEED;
 
     if (direction.lengthSq() > 0) {
       direction.normalize();
@@ -149,9 +151,9 @@ export default function FirstPersonCamera() {
       targetPosition.current.addScaledVector(direction, speed * dt);
     }
 
-    /*
-     * Scroll movement
-     */
+    /* =====================================================
+       SCROLL MOVEMENT
+    ===================================================== */
 
     if (Math.abs(scrollVelocity.current) > 0.001) {
       targetPosition.current.addScaledVector(
@@ -167,9 +169,9 @@ export default function FirstPersonCamera() {
       );
     }
 
-    /*
-     * Museum boundary
-     */
+    /* =====================================================
+       MUSEUM BOUNDARY
+    ===================================================== */
 
     const horizontalDistance = Math.sqrt(
       targetPosition.current.x ** 2 + targetPosition.current.z ** 2,
@@ -183,23 +185,13 @@ export default function FirstPersonCamera() {
       targetPosition.current.z *= scale;
     }
 
-    /*
-     * Maintain eye height
-     */
-
     targetPosition.current.y = EYE_HEIGHT;
 
-    /*
-     * Smooth camera movement
-     */
+    /* =====================================================
+       SMOOTH CAMERA
+    ===================================================== */
 
-    const smoothing = 1 - Math.exp(-12 * dt);
-
-    camera.position.lerp(targetPosition.current, smoothing);
-
-    /*
-     * Camera rotation
-     */
+    camera.position.lerp(targetPosition.current, 1 - Math.exp(-12 * dt));
 
     camera.rotation.order = "YXZ";
 

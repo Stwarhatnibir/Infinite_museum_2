@@ -1,58 +1,48 @@
 "use client";
 
 import { Environment, Stars } from "@react-three/drei";
-
 import CentralHall from "./CentralHall";
-
+import AncientRoom from "./AncientRoom";
 import FirstPersonCamera from "../Camera/FirstPersonCamera";
 
 export default function Museum() {
   return (
     <>
-      {/* ================================
-          BACKGROUND
-      ================================= */}
+      {/* =====================================================
+          GLOBAL SCENE
+      ===================================================== */}
 
       <color attach="background" args={["#050505"]} />
 
-      {/* ================================
-          FOG
-      ================================= */}
+      <fog attach="fog" args={["#050505", 70, 500]} />
 
-      <fog attach="fog" args={["#050505", 80, 500]} />
+      {/* =====================================================
+          GLOBAL LIGHTING
+      ===================================================== */}
 
-      {/* ================================
-          AMBIENT LIGHT
-      ================================= */}
+      <ambientLight intensity={0.3} color="#d8d0c0" />
 
-      <ambientLight intensity={0.35} />
-
-      {/* ================================
-          MAIN DIRECTIONAL LIGHT
-      ================================= */}
-
-      <directionalLight position={[100, 100, 100]} intensity={1} castShadow />
-
-      {/* ================================
-          CENTRAL ORB LIGHT
-      ================================= */}
-
-      <pointLight
-        position={[0, 25, 0]}
-        intensity={30}
-        distance={100}
-        color="#ffd98a"
+      <directionalLight
+        position={[100, 150, 100]}
+        intensity={0.8}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-left={-200}
+        shadow-camera-right={200}
+        shadow-camera-top={200}
+        shadow-camera-bottom={-200}
       />
 
-      {/* ================================
-          ENVIRONMENT
-      ================================= */}
+      {/* =====================================================
+          GLOBAL ENVIRONMENT
+      ===================================================== */}
 
       <Environment preset="night" />
 
-      {/* ================================
-          STARFIELD
-      ================================= */}
+      {/* =====================================================
+          BACKGROUND STARS
+      ===================================================== */}
 
       <Stars
         radius={500}
@@ -64,17 +54,23 @@ export default function Museum() {
         speed={0.3}
       />
 
-      {/* ================================
-          FIRST PERSON CAMERA
-      ================================= */}
+      {/* =====================================================
+          CAMERA
+      ===================================================== */}
 
       <FirstPersonCamera />
 
-      {/* ================================
-          MUSEUM
-      ================================= */}
+      {/* =====================================================
+          CENTRAL HALL
+      ===================================================== */}
 
       <CentralHall />
+
+      {/* =====================================================
+          ANCIENT ROOM
+      ===================================================== */}
+
+      <AncientRoom />
     </>
   );
 }
