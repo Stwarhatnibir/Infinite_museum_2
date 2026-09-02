@@ -1,38 +1,48 @@
 "use client";
 
-import { Environment, Stars } from "@react-three/drei";
-import CentralHall from "./CentralHall";
-import AncientRoom from "./AncientRoom";
+import { Suspense } from "react";
+import { Environment } from "@react-three/drei";
+
 import FirstPersonCamera from "../Camera/FirstPersonCamera";
+import Artifact from "../Objects/Artifact";
+import AncientRoom from "./AncientRoom";
+
+type ArtifactData = {
+  id: string;
+  name: string;
+  category: string;
+  room: string;
+  description: string;
+  longDescription: string;
+  rarity: "rare" | "common" | "legendary";
+  position: [number, number, number];
+  scale: number;
+  glowIntensity: number;
+};
+
+const testArtifact: ArtifactData = {
+  id: "ancient-golden-artifact",
+  name: "Golden Relic",
+  category: "Ancient Artifact",
+  room: "Ancient",
+  description:
+    "A mysterious golden relic preserved inside the Infinite Museum.",
+  longDescription:
+    "Its origin remains unknown. The surface appears to contain patterns that do not correspond to any known writing system. This artifact is currently being catalogued as one of the museum's earliest discoveries.",
+  rarity: "rare",
+  position: [0, 2, -8],
+  scale: 1.5,
+  glowIntensity: 1.5,
+};
 
 export default function Museum() {
   return (
     <>
       {/* =====================================================
-          GLOBAL SCENE
+          FIRST PERSON CAMERA
       ===================================================== */}
 
-      <color attach="background" args={["#050505"]} />
-
-      <fog attach="fog" args={["#050505", 70, 500]} />
-
-      {/* =====================================================
-          GLOBAL LIGHTING
-      ===================================================== */}
-
-      <ambientLight intensity={0.3} color="#d8d0c0" />
-
-      <directionalLight
-        position={[100, 150, 100]}
-        intensity={0.8}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-left={-200}
-        shadow-camera-right={200}
-        shadow-camera-top={200}
-        shadow-camera-bottom={-200}
-      />
+      <FirstPersonCamera />
 
       {/* =====================================================
           GLOBAL ENVIRONMENT
@@ -40,37 +50,53 @@ export default function Museum() {
 
       <Environment preset="night" />
 
+      <ambientLight intensity={0.35} color="#ffffff" />
+
+      <directionalLight position={[10, 20, 10]} intensity={0.8} castShadow />
+
       {/* =====================================================
-          BACKGROUND STARS
+          CENTRAL TEST AREA
       ===================================================== */}
 
-      <Stars
-        radius={500}
-        depth={100}
-        count={3000}
-        factor={4}
-        saturation={0}
-        fade
-        speed={0.3}
+      <pointLight
+        position={[0, 5, -8]}
+        intensity={3}
+        distance={20}
+        color="#d4af37"
       />
 
-      {/* =====================================================
-          CAMERA
-      ===================================================== */}
+      <Suspense fallback={null}>
+        {/* Test artifact */}
+        <Artifact artifact={testArtifact} />
 
-      <FirstPersonCamera />
+        {/* Central floor */}
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0, 0]}
+          receiveShadow
+        >
+          <planeGeometry args={[100, 100]} />
 
-      {/* =====================================================
-          CENTRAL HALL
-      ===================================================== */}
+          <meshStandardMaterial
+            color="#111111"
+            roughness={0.65}
+            metalness={0.25}
+          />
+        </mesh>
 
-      <CentralHall />
+        {/* Central decorative ring */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, -8]}>
+          <ringGeometry args={[2.5, 2.55, 64]} />
 
-      {/* =====================================================
-          ANCIENT ROOM
-      ===================================================== */}
+          <meshBasicMaterial color="#d4af37" transparent opacity={0.35} />
+        </mesh>
 
-      <AncientRoom />
+        {/* =================================================
+            ANCIENT ROOM
+        ================================================= */}
+
+        <AncientRoom />
+      </Suspense>
     </>
   );
 }

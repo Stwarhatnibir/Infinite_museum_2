@@ -4,6 +4,8 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+import Artifact from "../Objects/Artifact";
+
 const ROOM_RADIUS = 70;
 const ROOM_HEIGHT = 35;
 
@@ -13,18 +15,143 @@ const STONE = "#241c13";
 const STONE_DARK = "#100d09";
 const WARM = "#d28b38";
 
+interface InteractiveAncientArtifactProps {
+  artifact: React.ComponentProps<typeof Artifact>["artifact"];
+
+  anchorPosition: [number, number, number];
+
+  children: React.ReactNode;
+}
+
+function InteractiveAncientArtifact({
+  artifact,
+  anchorPosition,
+  children,
+}: InteractiveAncientArtifactProps) {
+  return (
+    <Artifact
+      artifact={{
+        ...artifact,
+        position: [0, 0, 0],
+      }}
+      showDefaultOrb={false}
+      anchorPosition={anchorPosition}
+    >
+      {children}
+    </Artifact>
+  );
+}
+
 export default function AncientRoom() {
   return (
     <group position={[0, 0, -150]}>
       <AncientArchitecture />
+
       <AncientLighting />
+
       <AncientOrb />
+
       <DustParticles />
-      <Sarcophagus />
-      <GreekStatue />
-      <AncientScroll />
-      <IndianSculpture />
-      <RomanCoins />
+
+      <InteractiveAncientArtifact
+        artifact={{
+          id: "ancient-sarcophagus",
+          name: "Egyptian Sarcophagus",
+          category: "Ancient Artifact",
+          room: "Ancient",
+          description:
+            "A ceremonial Egyptian sarcophagus preserved within the ancient wing.",
+          longDescription:
+            "Its carved surface and golden funerary details suggest a ritual object created for a person of high status. The museum's records contain no confirmed provenance.",
+          rarity: "rare",
+          position: [-30, 6, 0],
+          scale: 1,
+          glowIntensity: 1.4,
+        }}
+        anchorPosition={[-30, 6, 0]}
+      >
+        <Sarcophagus />
+      </InteractiveAncientArtifact>
+
+      <InteractiveAncientArtifact
+        artifact={{
+          id: "ancient-greek-statue",
+          name: "Greek Marble Statue",
+          category: "Ancient Sculpture",
+          room: "Ancient",
+          description:
+            "A rotating marble figure inspired by classical Greek sculpture.",
+          longDescription:
+            "The figure combines idealized human proportions with an unexplained golden halo. Its exact identity remains unknown.",
+          rarity: "common",
+          position: [20, 5, -15],
+          scale: 1,
+          glowIntensity: 1.1,
+        }}
+        anchorPosition={[20, 5, -15]}
+      >
+        <GreekStatue />
+      </InteractiveAncientArtifact>
+
+      <InteractiveAncientArtifact
+        artifact={{
+          id: "ancient-scroll",
+          name: "Floating Ancient Scroll",
+          category: "Ancient Manuscript",
+          room: "Ancient",
+          description: "A mysterious scroll suspended above the chamber floor.",
+          longDescription:
+            "The manuscript contains symbols that have not yet been matched to a known writing system. It appears to react to movement nearby.",
+          rarity: "legendary",
+          position: [0, 15, 10],
+          scale: 1,
+          glowIntensity: 1.8,
+        }}
+        anchorPosition={[0, 15, 10]}
+      >
+        <AncientScroll />
+      </InteractiveAncientArtifact>
+
+      <InteractiveAncientArtifact
+        artifact={{
+          id: "ancient-indian-sculpture",
+          name: "Indian Temple Sculpture",
+          category: "Ancient Sculpture",
+          room: "Ancient",
+          description:
+            "A stylized ceremonial sculpture inspired by ancient Indian temple art.",
+          longDescription:
+            "The sculpture is surrounded by a luminous ring and appears to float above its pedestal, giving it an otherworldly presence.",
+          rarity: "rare",
+          position: [-10, 8, 20],
+          scale: 1,
+          glowIntensity: 1.5,
+        }}
+        anchorPosition={[-10, 8, 20]}
+      >
+        <IndianSculpture />
+      </InteractiveAncientArtifact>
+
+      <InteractiveAncientArtifact
+        artifact={{
+          id: "ancient-roman-coins",
+          name: "Roman Coin Constellation",
+          category: "Ancient Currency",
+          room: "Ancient",
+          description:
+            "A constellation of Roman-inspired coins suspended in the darkness.",
+          longDescription:
+            "Twenty-four coins orbit an unseen center. Their arrangement resembles a celestial map rather than a conventional collection.",
+          rarity: "common",
+          position: [15, 0, 0],
+          scale: 1,
+          glowIntensity: 1.2,
+        }}
+        anchorPosition={[15, 0, 0]}
+      >
+        <RomanCoins />
+      </InteractiveAncientArtifact>
+
       <AncientEntrance />
     </group>
   );
@@ -57,13 +184,12 @@ function AncientArchitecture() {
 
   return (
     <group>
-      {/* Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <circleGeometry args={[ROOM_RADIUS, 96]} />
+
         <primitive object={floorMaterial} attach="material" />
       </mesh>
 
-      {/* Outer walls */}
       <mesh position={[0, ROOM_HEIGHT / 2, 0]}>
         <cylinderGeometry
           args={[ROOM_RADIUS, ROOM_RADIUS, ROOM_HEIGHT, 96, 1, true]}
@@ -72,7 +198,6 @@ function AncientArchitecture() {
         <primitive object={wallMaterial} attach="material" />
       </mesh>
 
-      {/* Dark inner wall */}
       <mesh position={[0, ROOM_HEIGHT / 2, 0]}>
         <cylinderGeometry
           args={[ROOM_RADIUS - 2, ROOM_RADIUS - 2, ROOM_HEIGHT, 96, 1, true]}
@@ -86,14 +211,12 @@ function AncientArchitecture() {
         />
       </mesh>
 
-      {/* Ceiling */}
       <mesh position={[0, ROOM_HEIGHT, 0]}>
         <cylinderGeometry args={[ROOM_RADIUS - 2, ROOM_RADIUS - 2, 1.5, 96]} />
 
         <meshStandardMaterial color="#090705" roughness={0.95} />
       </mesh>
 
-      {/* Floor rings */}
       {[15, 30, 45, 60].map((radius) => (
         <mesh
           key={radius}
@@ -106,7 +229,6 @@ function AncientArchitecture() {
         </mesh>
       ))}
 
-      {/* Ancient pillars */}
       <AncientPillars />
     </group>
   );
@@ -129,28 +251,24 @@ function AncientPillars() {
         key={i}
         position={[Math.cos(angle) * radius, 0, Math.sin(angle) * radius]}
       >
-        {/* Base */}
         <mesh position={[0, 1, 0]} castShadow>
           <cylinderGeometry args={[2.5, 3, 2, 24]} />
 
           <meshStandardMaterial color="#31251a" roughness={0.8} />
         </mesh>
 
-        {/* Pillar */}
         <mesh position={[0, 13, 0]} castShadow>
           <cylinderGeometry args={[1.8, 2.2, 24, 20]} />
 
           <meshStandardMaterial color="#3b2c1d" roughness={0.8} />
         </mesh>
 
-        {/* Capital */}
         <mesh position={[0, 25.5, 0]}>
           <cylinderGeometry args={[3, 2, 3, 24]} />
 
           <meshStandardMaterial color="#453321" roughness={0.75} />
         </mesh>
 
-        {/* Gold ring */}
         <mesh position={[0, 24, 0]}>
           <torusGeometry args={[2.2, 0.08, 12, 32]} />
 
@@ -256,15 +374,17 @@ function DustParticles() {
 
   const particles = useMemo(() => {
     const count = 900;
+
     const positions = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = Math.random() * 65;
+      const angle = (i * 2.399963229728653) % (Math.PI * 2);
+
+      const radius = (Math.sin(i * 12.9898) * 0.5 + 0.5) * 65;
 
       positions[i * 3] = Math.cos(angle) * radius;
 
-      positions[i * 3 + 1] = Math.random() * 32;
+      positions[i * 3 + 1] = (Math.sin(i * 78.233) * 0.5 + 0.5) * 32;
 
       positions[i * 3 + 2] = Math.sin(angle) * radius;
     }
@@ -311,7 +431,6 @@ function Sarcophagus() {
 
   return (
     <group ref={groupRef} position={[-30, 6, 0]} rotation={[0, Math.PI / 2, 0]}>
-      {/* Base */}
       <mesh castShadow>
         <boxGeometry args={[10, 3, 4]} />
 
@@ -322,7 +441,6 @@ function Sarcophagus() {
         />
       </mesh>
 
-      {/* Coffin */}
       <mesh position={[0, 2.2, 0]} castShadow>
         <boxGeometry args={[9, 2.5, 3.5]} />
 
@@ -335,7 +453,6 @@ function Sarcophagus() {
         />
       </mesh>
 
-      {/* Golden face */}
       <mesh position={[4.6, 2.8, 0]}>
         <boxGeometry args={[0.15, 2, 2]} />
 
@@ -348,7 +465,6 @@ function Sarcophagus() {
         />
       </mesh>
 
-      {/* Symbol */}
       <mesh position={[4.7, 2.8, 0]} rotation={[0, Math.PI / 2, 0]}>
         <torusGeometry args={[0.45, 0.07, 12, 24]} />
 
@@ -380,14 +496,12 @@ function GreekStatue() {
 
   return (
     <group ref={groupRef} position={[20, 5, -15]}>
-      {/* Pedestal */}
       <mesh position={[0, 2, 0]}>
         <cylinderGeometry args={[4, 4.5, 4, 32]} />
 
         <meshStandardMaterial color="#716656" roughness={0.8} />
       </mesh>
 
-      {/* Body */}
       <mesh position={[0, 6, 0]} castShadow>
         <capsuleGeometry args={[1.7, 4.5, 12, 24]} />
 
@@ -398,15 +512,13 @@ function GreekStatue() {
         />
       </mesh>
 
-      {/* Head */}
       <mesh position={[0, 9.3, 0]}>
         <sphereGeometry args={[1.25, 32, 32]} />
 
         <meshStandardMaterial color="#d0c4ae" roughness={0.75} />
       </mesh>
 
-      {/* Halo */}
-      <mesh position={[0, 9.3, -0.5]} rotation={[0, 0, 0]}>
+      <mesh position={[0, 9.3, -0.5]}>
         <torusGeometry args={[1.8, 0.06, 12, 48]} />
 
         <meshBasicMaterial color={GOLD} transparent opacity={0.5} />
@@ -439,7 +551,6 @@ function AncientScroll() {
 
   return (
     <group ref={groupRef} position={[0, 15, 10]}>
-      {/* Scroll */}
       <mesh rotation={[0.3, 0.4, 0.2]}>
         <planeGeometry args={[6, 9]} />
 
@@ -452,7 +563,6 @@ function AncientScroll() {
         />
       </mesh>
 
-      {/* Scroll rods */}
       <mesh position={[-3, 0, 0]} rotation={[0.3, 0.4, 0.2]}>
         <cylinderGeometry args={[0.18, 0.18, 9.5, 16]} />
 
@@ -491,14 +601,12 @@ function IndianSculpture() {
 
   return (
     <group ref={groupRef} position={[-10, 8, 20]}>
-      {/* Pedestal */}
       <mesh position={[0, -5, 0]}>
         <cylinderGeometry args={[4, 4.5, 2, 32]} />
 
         <meshStandardMaterial color="#4e321b" roughness={0.75} />
       </mesh>
 
-      {/* Sculpture body */}
       <mesh castShadow>
         <sphereGeometry args={[2.8, 32, 32]} />
 
@@ -511,7 +619,6 @@ function IndianSculpture() {
         />
       </mesh>
 
-      {/* Crown */}
       <mesh position={[0, 3.2, 0]}>
         <coneGeometry args={[2, 3, 6]} />
 
@@ -522,7 +629,6 @@ function IndianSculpture() {
         />
       </mesh>
 
-      {/* Halo */}
       <mesh position={[0, 0, -1]}>
         <torusGeometry args={[4, 0.12, 16, 64]} />
 
@@ -551,11 +657,16 @@ function IndianSculpture() {
 
 function RomanCoins() {
   const coins = useMemo(() => {
-    return Array.from({ length: 24 }).map((_, index) => ({
+    return Array.from({
+      length: 24,
+    }).map((_, index) => ({
       angle: (index / 24) * Math.PI * 2,
-      radius: 3 + Math.random() * 7,
-      height: 10 + Math.random() * 5,
-      speed: 0.2 + Math.random() * 0.3,
+
+      radius: 3 + (((index * 17) % 100) / 100) * 7,
+
+      height: 10 + (((index * 43) % 100) / 100) * 5,
+
+      speed: 0.2 + (((index * 71) % 100) / 100) * 0.3,
     }));
   }, []);
 
@@ -574,7 +685,9 @@ function RomanCoins() {
           key={index}
           position={[
             Math.cos(coin.angle) * coin.radius,
+
             coin.height,
+
             Math.sin(coin.angle) * coin.radius,
           ]}
           rotation={[coin.angle, coin.angle * 2, coin.angle]}
@@ -601,7 +714,6 @@ function RomanCoins() {
 function AncientEntrance() {
   return (
     <group position={[0, 0, 68]}>
-      {/* Entrance frame */}
       <mesh position={[-9, 12, 0]}>
         <boxGeometry args={[3, 24, 4]} />
 
@@ -614,14 +726,12 @@ function AncientEntrance() {
         <meshStandardMaterial color="#3c2b1c" roughness={0.8} />
       </mesh>
 
-      {/* Top */}
       <mesh position={[0, 25, 0]}>
         <boxGeometry args={[21, 4, 4]} />
 
         <meshStandardMaterial color="#3c2b1c" roughness={0.8} />
       </mesh>
 
-      {/* Gold arch */}
       <mesh position={[0, 23, -2]}>
         <torusGeometry args={[9, 0.14, 16, 64, Math.PI]} />
 

@@ -19,6 +19,23 @@ export default function OpeningSequence() {
     };
   }, []);
 
+  const enterMuseum = () => {
+    setVisible(false);
+
+    /*
+     * Wait until the opening overlay starts
+     * disappearing, then lock the mouse to
+     * the Three.js canvas.
+     */
+    requestAnimationFrame(() => {
+      const canvas = document.querySelector("canvas");
+
+      if (canvas) {
+        canvas.requestPointerLock();
+      }
+    });
+  };
+
   if (!visible) {
     return null;
   }
@@ -41,7 +58,6 @@ export default function OpeningSequence() {
         >
           <div className="flex flex-col items-center text-center">
             {/* THE */}
-
             <motion.div
               initial={{
                 opacity: 0,
@@ -58,7 +74,6 @@ export default function OpeningSequence() {
             </motion.div>
 
             {/* INFINITE */}
-
             <motion.h1
               initial={{
                 opacity: 0,
@@ -78,7 +93,6 @@ export default function OpeningSequence() {
             </motion.h1>
 
             {/* MUSEUM */}
-
             <motion.div
               initial={{
                 opacity: 0,
@@ -98,7 +112,6 @@ export default function OpeningSequence() {
             </motion.div>
 
             {/* SUBTITLE */}
-
             <motion.p
               initial={{
                 opacity: 0,
@@ -116,7 +129,6 @@ export default function OpeningSequence() {
             </motion.p>
 
             {/* ENTER BUTTON */}
-
             <motion.button
               initial={{
                 opacity: 0,
@@ -128,9 +140,7 @@ export default function OpeningSequence() {
                 duration: 1,
               }}
               disabled={!canEnter}
-              onClick={() => {
-                setVisible(false);
-              }}
+              onClick={enterMuseum}
               className="mt-12 border border-[#d6b56a]/50 px-8 py-3 text-xs tracking-[0.4em] text-[#d6b56a] transition-all duration-500 hover:border-[#d6b56a] hover:bg-[#d6b56a]/10 disabled:cursor-not-allowed"
             >
               [ ENTER ]

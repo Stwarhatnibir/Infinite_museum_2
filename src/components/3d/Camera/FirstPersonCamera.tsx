@@ -10,37 +10,21 @@ const SPRINT_MULTIPLIER = 2;
 const MOUSE_SENSITIVITY = 0.0025;
 const SCROLL_SPEED = 0.035;
 const MAX_PITCH = THREE.MathUtils.degToRad(70);
-
-/*
- * Expanded for the Infinite Museum.
- *
- * Central Hall:
- * roughly ±92
- *
- * Ancient Room:
- * centered around Z = -150
- *
- * This is temporary.
- * Later we will replace this with
- * proper room/wall collision.
- */
 const MUSEUM_RADIUS = 230;
 
 export default function FirstPersonCamera() {
-  const { camera, gl } = useThree();
+  const gl = useThree((state) => state.gl);
 
   const keys = useRef<Record<string, boolean>>({});
 
   const yaw = useRef(0);
   const pitch = useRef(0);
 
-  const targetPosition = useRef(new THREE.Vector3(0, EYE_HEIGHT, 25));
+  const targetPosition = useRef(new THREE.Vector3(0, EYE_HEIGHT, 5));
 
   const scrollVelocity = useRef(0);
 
   useEffect(() => {
-    camera.position.copy(targetPosition.current);
-
     const handleKeyDown = (event: KeyboardEvent) => {
       keys.current[event.code] = true;
 
@@ -110,10 +94,12 @@ export default function FirstPersonCamera() {
 
       gl.domElement.removeEventListener("click", handleClick);
     };
-  }, [camera, gl]);
+  }, [gl]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const dt = Math.min(delta, 0.05);
+
+    const camera = state.camera;
 
     const direction = new THREE.Vector3();
 
@@ -121,9 +107,11 @@ export default function FirstPersonCamera() {
 
     const right = new THREE.Vector3(1, 0, 0);
 
-    forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw.current);
+    const up = new THREE.Vector3(0, 1, 0);
 
-    right.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw.current);
+    forward.applyAxisAngle(up, yaw.current);
+
+    right.applyAxisAngle(up, yaw.current);
 
     if (keys.current["KeyW"]) {
       direction.add(forward);
@@ -151,10 +139,9 @@ export default function FirstPersonCamera() {
       targetPosition.current.addScaledVector(direction, speed * dt);
     }
 
-    /* =====================================================
-       SCROLL MOVEMENT
-    ===================================================== */
-
+    /*
+     * Scroll movement
+     */
     if (Math.abs(scrollVelocity.current) > 0.001) {
       targetPosition.current.addScaledVector(
         forward,
@@ -169,10 +156,9 @@ export default function FirstPersonCamera() {
       );
     }
 
-    /* =====================================================
-       MUSEUM BOUNDARY
-    ===================================================== */
-
+    /*
+     * Museum boundary
+     */
     const horizontalDistance = Math.sqrt(
       targetPosition.current.x ** 2 + targetPosition.current.z ** 2,
     );
@@ -187,10 +173,9 @@ export default function FirstPersonCamera() {
 
     targetPosition.current.y = EYE_HEIGHT;
 
-    /* =====================================================
-       SMOOTH CAMERA
-    ===================================================== */
-
+    /*
+     * Smooth camera movement
+     */
     camera.position.lerp(targetPosition.current, 1 - Math.exp(-12 * dt));
 
     camera.rotation.order = "YXZ";
