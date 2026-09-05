@@ -6,6 +6,8 @@ import * as THREE from "three";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import { ArtifactData, useMuseumStore } from "../../../stores/museumStore";
+
+import { useDiscoveryStore } from "../../../stores/discoveryStore";
 import ArtifactLabel from "./ArtifactLabel";
 
 interface ArtifactProps {
@@ -22,14 +24,18 @@ export default function Artifact({
   anchorPosition = artifact.position,
 }: ArtifactProps) {
   const groupRef = useRef<THREE.Group>(null);
+
   const highlightRef = useRef<THREE.PointLight>(null);
 
   const { camera } = useThree();
 
   const [hovered, setHovered] = useState(false);
+
   const [distance, setDistance] = useState(Infinity);
 
   const openArtifactInfo = useMuseumStore((state) => state.openArtifactInfo);
+
+  const discoverArtifact = useDiscoveryStore((state) => state.discoverArtifact);
 
   const glowMaterial = useMemo(
     () =>
@@ -108,6 +114,25 @@ export default function Artifact({
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
 
+    /*
+     * Exit pointer lock so the user can
+     * interact with the information panel.
+     */
+    if (document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+
+    /*
+     * Register the artifact as discovered.
+     *
+     * Duplicate clicks do not increase
+     * the discovery count.
+     */
+    discoverArtifact(artifact);
+
+    /*
+     * Open the artifact information panel.
+     */
     openArtifactInfo(artifact);
   };
 
@@ -182,6 +207,11 @@ export default function Artifact({
         distance={distance}
         visible={distance < 50}
         hovered={hovered}
+        position={
+          showDefaultOrb
+            ? [0, 2.8, 0]
+            : [anchorPosition[0], anchorPosition[1] + 2.8, anchorPosition[2]]
+        }
       />
 
       {hovered && distance < 50 && !showDefaultOrb && (
@@ -199,12 +229,19 @@ export default function Artifact({
           <div
             style={{
               padding: "6px 10px",
+
               background: "rgba(0,0,0,0.7)",
+
               border: "1px solid rgba(255,215,0,0.3)",
+
               color: "#d4af37",
+
               fontSize: "9px",
+
               letterSpacing: "1.5px",
+
               whiteSpace: "nowrap",
+
               fontFamily: "Arial, sans-serif",
             }}
           >

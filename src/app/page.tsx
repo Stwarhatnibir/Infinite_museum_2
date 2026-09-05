@@ -5,12 +5,13 @@ import { Suspense } from "react";
 
 import Museum from "../components/3d/Museum/Museum";
 import OpeningSequence from "../components/3d/Museum/OpeningSequence";
+
 import ArtifactInfo from "../components/UI/ArtifactInfo";
+import DiscoveryNotification from "../components/UI/DiscoveryNotification";
 
 export default function Home() {
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
-      {/* 3D Museum */}
       <Canvas
         shadows
         camera={{
@@ -32,8 +33,10 @@ export default function Home() {
         </Suspense>
       </Canvas>
 
-      {/* Artifact information */}
       <ArtifactInfo />
+
+      <DiscoveryNotification />
+
       <OpeningSequence />
     </main>
   );
