@@ -8,6 +8,7 @@ import OpeningSequence from "../components/3d/Museum/OpeningSequence";
 
 import ArtifactInfo from "../components/UI/ArtifactInfo";
 import DiscoveryNotification from "../components/UI/DiscoveryNotification";
+import HUD from "../components/UI/HUD";
 
 export default function Home() {
   return (
@@ -32,6 +33,8 @@ export default function Home() {
           <Museum />
         </Suspense>
       </Canvas>
+
+      <HUD />
 
       <ArtifactInfo />
 

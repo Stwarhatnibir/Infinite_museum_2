@@ -4,25 +4,48 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+import { useMuseumStore } from "../../../stores/museumStore";
+
 const EYE_HEIGHT = 1.6;
+
 const WALK_SPEED = 12;
+
 const SPRINT_MULTIPLIER = 2;
+
 const MOUSE_SENSITIVITY = 0.0025;
+
 const SCROLL_SPEED = 0.035;
+
 const MAX_PITCH = THREE.MathUtils.degToRad(70);
+
 const MUSEUM_RADIUS = 230;
+
+/*
+ * ================================================================
+ * ROOM DETECTION
+ * ================================================================
+ */
+
+const ANCIENT_ROOM_CENTER = new THREE.Vector3(0, 0, -150);
+
+const ANCIENT_ROOM_RADIUS = 70;
 
 export default function FirstPersonCamera() {
   const gl = useThree((state) => state.gl);
 
+  const setCurrentRoom = useMuseumStore((state) => state.setCurrentRoom);
+
   const keys = useRef<Record<string, boolean>>({});
 
   const yaw = useRef(0);
+
   const pitch = useRef(0);
 
   const targetPosition = useRef(new THREE.Vector3(0, EYE_HEIGHT, 5));
 
   const scrollVelocity = useRef(0);
+
+  const detectedRoom = useRef("central");
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -109,9 +132,21 @@ export default function FirstPersonCamera() {
 
     const up = new THREE.Vector3(0, 1, 0);
 
+    /*
+     * ================================================================
+     * CAMERA DIRECTION
+     * ================================================================
+     */
+
     forward.applyAxisAngle(up, yaw.current);
 
     right.applyAxisAngle(up, yaw.current);
+
+    /*
+     * ================================================================
+     * KEYBOARD MOVEMENT
+     * ================================================================
+     */
 
     if (keys.current["KeyW"]) {
       direction.add(forward);
@@ -140,8 +175,11 @@ export default function FirstPersonCamera() {
     }
 
     /*
-     * Scroll movement
+     * ================================================================
+     * SCROLL MOVEMENT
+     * ================================================================
      */
+
     if (Math.abs(scrollVelocity.current) > 0.001) {
       targetPosition.current.addScaledVector(
         forward,
@@ -157,8 +195,11 @@ export default function FirstPersonCamera() {
     }
 
     /*
-     * Museum boundary
+     * ================================================================
+     * MUSEUM BOUNDARY
+     * ================================================================
      */
+
     const horizontalDistance = Math.sqrt(
       targetPosition.current.x ** 2 + targetPosition.current.z ** 2,
     );
@@ -174,8 +215,34 @@ export default function FirstPersonCamera() {
     targetPosition.current.y = EYE_HEIGHT;
 
     /*
-     * Smooth camera movement
+     * ================================================================
+     * ROOM DETECTION
+     * ================================================================
      */
+
+    const distanceToAncientRoom = Math.sqrt(
+      (targetPosition.current.x - ANCIENT_ROOM_CENTER.x) ** 2 +
+        (targetPosition.current.z - ANCIENT_ROOM_CENTER.z) ** 2,
+    );
+
+    let currentRoom = "central";
+
+    if (distanceToAncientRoom <= ANCIENT_ROOM_RADIUS) {
+      currentRoom = "ancient";
+    }
+
+    if (detectedRoom.current !== currentRoom) {
+      detectedRoom.current = currentRoom;
+
+      setCurrentRoom(currentRoom);
+    }
+
+    /*
+     * ================================================================
+     * SMOOTH CAMERA MOVEMENT
+     * ================================================================
+     */
+
     camera.position.lerp(targetPosition.current, 1 - Math.exp(-12 * dt));
 
     camera.rotation.order = "YXZ";
