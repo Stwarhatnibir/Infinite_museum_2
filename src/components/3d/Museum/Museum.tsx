@@ -6,6 +6,7 @@ import { Environment } from "@react-three/drei";
 import FirstPersonCamera from "../Camera/FirstPersonCamera";
 import Artifact from "../Objects/Artifact";
 import AncientRoom from "./AncientRoom";
+import ScienceRoom from "./ScienceRoom";
 
 type ArtifactData = {
   id: string;
@@ -66,10 +67,16 @@ export default function Museum() {
       />
 
       <Suspense fallback={null}>
-        {/* Test artifact */}
+        {/* =================================================
+            CENTRAL TEST ARTIFACT
+        ================================================= */}
+
         <Artifact artifact={testArtifact} />
 
-        {/* Central floor */}
+        {/* =================================================
+            CENTRAL FLOOR
+        ================================================= */}
+
         <mesh
           rotation={[-Math.PI / 2, 0, 0]}
           position={[0, 0, 0]}
@@ -84,7 +91,10 @@ export default function Museum() {
           />
         </mesh>
 
-        {/* Central decorative ring */}
+        {/* =================================================
+            CENTRAL DECORATIVE RING
+        ================================================= */}
+
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, -8]}>
           <ringGeometry args={[2.5, 2.55, 64]} />
 
@@ -96,6 +106,12 @@ export default function Museum() {
         ================================================= */}
 
         <AncientRoom />
+
+        {/* =================================================
+            SCIENCE ROOM
+        ================================================= */}
+
+        <ScienceRoom />
       </Suspense>
     </>
   );

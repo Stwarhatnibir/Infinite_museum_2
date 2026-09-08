@@ -10,9 +10,13 @@ interface DiscoveryState {
   lastDiscovery: ArtifactData | null;
 
   discoverArtifact: (artifact: ArtifactData) => boolean;
+
   clearLastDiscovery: () => void;
+
   hasDiscovered: (artifactId: string) => boolean;
+
   getDiscoveryCount: () => number;
+
   resetDiscoveries: () => void;
 }
 
@@ -20,6 +24,7 @@ export const useDiscoveryStore = create<DiscoveryState>()(
   persist(
     (set, get) => ({
       discoveredIds: [],
+
       lastDiscovery: null,
 
       discoverArtifact: (artifact) => {
